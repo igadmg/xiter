@@ -117,6 +117,7 @@ func Zip[T1, T2 any](seq1 Seq[T1], seq2 Seq[T2]) Seq[Zipped[T1, T2]] {
 	}
 }
 
+/*
 func Glue[T1, T2 any](seq Seq[T1], slice []T2) Seq[Zipped[T1, T2]] {
 	return func(yield func(Zipped[T1, T2]) bool) {
 		i := 0
@@ -127,6 +128,7 @@ func Glue[T1, T2 any](seq Seq[T1], slice []T2) Seq[Zipped[T1, T2]] {
 		}
 	}
 }
+*/
 
 // Merge returns a sequence that yields values from the ordered
 // sequences seq1 and seq2 one at a time to produce a new ordered
