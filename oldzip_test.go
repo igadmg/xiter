@@ -1,14 +1,18 @@
 package xiter
 
-import "testing"
+import (
+	"iter"
+	"slices"
+	"testing"
+)
 
 func BenchmarkOldZip(b *testing.B) {
 	slice1 := []int{1, 2, 3, 4, 5}
 	slice2 := []int{2, 3, 4, 5, 6}
 
 	for i := 0; i < b.N; i++ {
-		s1 := OfSlice(slice1)
-		s2 := OfSlice(slice2)
+		s1 := slices.Values(slice1)
+		s2 := slices.Values(slice2)
 		seq := oldZip(s1, s2)
 		seq(func(v Zipped[int, int]) bool {
 			return true
@@ -27,7 +31,7 @@ func oldZipSend[T any](done <-chan struct{}, c chan<- T) func(v T) bool {
 	}
 }
 
-func oldZip[T1, T2 any](seq1 Seq[T1], seq2 Seq[T2]) Seq[Zipped[T1, T2]] {
+func oldZip[T1, T2 any](seq1 iter.Seq[T1], seq2 iter.Seq[T2]) iter.Seq[Zipped[T1, T2]] {
 	done := make(chan struct{})
 
 	c1 := make(chan T1)
