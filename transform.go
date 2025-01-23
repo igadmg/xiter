@@ -4,6 +4,8 @@ import (
 	"cmp"
 	"iter"
 	"slices"
+
+	"deedles.dev/xiter/internal/xheap"
 )
 
 // Map returns a Seq that yields the values of seq transformed via f.
@@ -180,8 +182,6 @@ func MergeFunc[T any](seq1, seq2 iter.Seq[T], compare func(T, T) int) iter.Seq[T
 				v2, ok2 = p2()
 			}
 		}
-
-		return
 	}
 }
 
@@ -221,7 +221,6 @@ func Windows[T any](seq iter.Seq[T], n int) iter.Seq[[]T] {
 		if len(win) < n {
 			yield(win)
 		}
-		return
 	}
 }
 
@@ -263,7 +262,6 @@ func Chunks[T any](seq iter.Seq[T], n int) iter.Seq[[]T] {
 		if len(win) < n {
 			yield(win)
 		}
-		return
 	}
 }
 
@@ -381,5 +379,97 @@ func Or[T any](seqs ...iter.Seq[T]) iter.Seq[T] {
 			})
 			return cont
 		})
+	}
+}
+
+// Dedup returns an iterator that only yields each unique element from
+// seq once. Note that to do this, it stores a set of all elements
+// that have been seen, so this iterator can use a large amount of
+// memory if seq yields a very large number of unique elements.
+func Dedup[T comparable](seq iter.Seq[T]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		found := make(map[T]struct{})
+		for v := range seq {
+			if _, ok := found[v]; ok {
+				continue
+			}
+			found[v] = struct{}{}
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
+// Uniq returns an iterator that removes consecutive duplicates from
+// seq. It is similar to [Dedup], but non-consecutive duplicates are
+// not filtered out. Unlike Dedup, it does not store all found values,
+// and so does not have the same performance implication that Dedup
+// does.
+func Uniq[T comparable](seq iter.Seq[T]) iter.Seq[T] {
+	return UniqFunc(seq, func(v1, v2 T) bool { return v1 == v2 })
+}
+
+// UniqFunc is like [Uniq] but uses the provided comparison function
+// to check for duplicates.
+func UniqFunc[T comparable](seq iter.Seq[T], eq func(T, T) bool) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		next, stop := iter.Pull(seq)
+		defer stop()
+
+		cur, ok := next()
+		if !ok || !yield(cur) {
+			return
+		}
+
+		for {
+			v, ok := next()
+			if !ok {
+				return
+			}
+			if eq(v, cur) {
+				continue
+			}
+
+			if !yield(v) {
+				return
+			}
+			cur = v
+		}
+	}
+}
+
+// Sorted collects the entirety of seq and then returns a one-time use
+// iterator which yields the elements of seq in a sorted order.
+func Sorted[T cmp.Ordered](seq iter.Seq[T]) iter.Seq[T] {
+	s := slices.Collect(seq)
+	xheap.Init(s)
+
+	return func(yield func(T) bool) {
+		for len(s) > 0 {
+			var v T
+			v, s = xheap.Pop(s)
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
+// SortedFunc collects the entirety of seq and then returns a one-time
+// use iterator which yields the elements of seq in a sorted order
+// determined by the provided comparison function.
+func SortedFunc[T any](seq iter.Seq[T], compare func(T, T) int) iter.Seq[T] {
+	s := slices.Collect(seq)
+	xheap.InitFunc(s, compare)
+
+	return func(yield func(T) bool) {
+		for len(s) > 0 {
+			var v T
+			v, s = xheap.PopFunc(s, compare)
+			if !yield(v) {
+				return
+			}
+		}
 	}
 }

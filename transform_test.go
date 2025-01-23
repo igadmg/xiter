@@ -51,7 +51,7 @@ func TestConcat(t *testing.T) {
 		t.Fatal(s)
 	}
 
-	s = Chain[int](slices.Values([]int{1, 2, 3})).Concat(slices.Values([]int{3, 2, 5})).Collect()
+	s = slices.Collect(Concat(slices.Values([]int{1, 2, 3}), slices.Values([]int{3, 2, 5})))
 	if [6]int(s) != [...]int{1, 2, 3, 3, 2, 5} {
 		t.Fatal(s)
 	}
@@ -174,7 +174,6 @@ func TestCache(t *testing.T) {
 	f := func(yield func(int) bool) {
 		yield(i)
 		i++
-		return
 	}
 	seq := Cache(f)
 	if s := slices.Collect(seq); !slices.Equal(s, []int{0}) {
@@ -198,8 +197,37 @@ func TestOr(t *testing.T) {
 		t.Fatal(s)
 	}
 
-	s = Chain[int](Of[int]()).Or(nil, Of(1, 2, 3), Of(4, 5, 6)).Collect()
+	s = slices.Collect(Or(Of[int](), Of(1, 2, 3), Of(4, 5, 6)))
 	if !slices.Equal(s, []int{1, 2, 3}) {
+		t.Fatal(s)
+	}
+}
+
+func TestDedup(t *testing.T) {
+	s := slices.Collect(Dedup(Of(1, 2, 3, 1, 2, 3, 4, 5, 3, 3, 3, 1, 2, 10)))
+	if !slices.Equal(s, []int{1, 2, 3, 4, 5, 10}) {
+		t.Fatal(s)
+	}
+}
+
+func TestUniq(t *testing.T) {
+	s := slices.Collect(Uniq(Of(1, 2, 3, 1, 2, 3, 4, 5, 3, 3, 3, 1, 2, 10)))
+	if !slices.Equal(s, []int{1, 2, 3, 1, 2, 3, 4, 5, 3, 1, 2, 10}) {
+		t.Fatal(s)
+	}
+}
+
+func TestSorted(t *testing.T) {
+	s := slices.Collect(Sorted(Of(3, 2, 5, 1, 7, 7, 8, 2)))
+	if !slices.Equal(s, []int{1, 2, 2, 3, 5, 7, 7, 8}) {
+		t.Fatal(s)
+	}
+}
+
+func TestSortedFunc(t *testing.T) {
+	compare := func(v1, v2 int) int { return v2 - v1 }
+	s := slices.Collect(SortedFunc(Of(3, 2, 5, 1, 7, 7, 8, 2), compare))
+	if !slices.Equal(s, []int{8, 7, 7, 5, 3, 2, 2, 1}) {
 		t.Fatal(s)
 	}
 }
