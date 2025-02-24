@@ -45,6 +45,14 @@ func All[T any](seq iter.Seq[T], f func(T) bool) bool {
 	return !Any(seq, f)
 }
 
+// All returns true if f(element) is true for every element of seq.
+func IsEmpty[T any](seq iter.Seq[T]) bool {
+	for range seq {
+		return false
+	}
+	return true
+}
+
 // Reduce calls reducer on each value of seq, passing it initial as
 // its first argument on the first call and then the result of the
 // previous call for each call after that. It returns the final value
