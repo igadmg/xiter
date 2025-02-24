@@ -366,6 +366,16 @@ func Enumerate[T any](seq iter.Seq[T]) iter.Seq2[int, T] {
 	}
 }
 
+// Link returns a Seq2 that links fn result to element of
+// seq as it yields elements from it.
+func Link[T, T2 any](seq iter.Seq[T], fn func(t T) T2) iter.Seq2[T, T2] {
+	return func(yield func(T, T2) bool) {
+		seq(func(v T) bool {
+			return yield(v, fn(v))
+		})
+	}
+}
+
 // Or yields all of the values from the first Seq which yields at
 // least one value and then stops.
 func Or[T any](seqs ...iter.Seq[T]) iter.Seq[T] {
