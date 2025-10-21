@@ -497,3 +497,17 @@ func Cast[T any, E any](x iter.Seq[E]) iter.Seq[T] {
 		}
 	}
 }
+
+// casts sequence of one type to the sequence of the other type
+// works only on sequences of interfaces.
+func Cast2[T any, N any, E any](x iter.Seq2[N, E]) iter.Seq2[N, T] {
+	return func(yield func(N, T) bool) {
+		for n, i := range x {
+			if it, ok := (any)(i).(T); ok {
+				if !yield(n, it) {
+					return
+				}
+			}
+		}
+	}
+}
