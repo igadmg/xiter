@@ -483,3 +483,17 @@ func SortedFunc[T any](seq iter.Seq[T], compare func(T, T) int) iter.Seq[T] {
 		}
 	}
 }
+
+// casts sequence of one type to the sequence of the other type
+// works only on sequences of interfaces.
+func Cast[T any, E any](x iter.Seq[E]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for i := range x {
+			if it, ok := (any)(i).(T); ok {
+				if !yield(it) {
+					return
+				}
+			}
+		}
+	}
+}
