@@ -97,6 +97,28 @@ func Flatten[T any](seq iter.Seq[iter.Seq[T]]) iter.Seq[T] {
 	}
 }
 
+func Step[T any](seq iter.Seq[T], shift, period int) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		i := -shift
+		for v := range seq {
+			if i%period == 0 {
+				if !yield(v) {
+					return
+				}
+			}
+			i++
+		}
+	}
+}
+
+func Even[T any](seq iter.Seq[T]) iter.Seq[T] {
+	return Step(seq, 0, 2)
+}
+
+func Odd[T any](seq iter.Seq[T]) iter.Seq[T] {
+	return Step(seq, 1, 2)
+}
+
 // Zipped holds values from an iteration of a Seq returned by [Zip].
 type Zipped[T1, T2 any] struct {
 	V1  T1
