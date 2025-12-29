@@ -157,18 +157,41 @@ func Zip[T1, T2 any](seq1 iter.Seq[T1], seq2 iter.Seq[T2]) iter.Seq[Zipped[T1, T
 	}
 }
 
-/*
-func Glue[T1, T2 any](seq Seq[T1], slice []T2) Seq[Zipped[T1, T2]] {
+// Glue function Zips sequence witha a slice - does not use goroutines for that.
+func Glue[T1, T2 any](seq iter.Seq[T1], slice []T2) iter.Seq[Zipped[T1, T2]] {
 	return func(yield func(Zipped[T1, T2]) bool) {
 		i := 0
+		mi := len(slice)
 		for x := range seq {
-			if !yield(Zipped[T1, T2]{x, true, slice[i], true}) {
+			if i < mi {
+				if !yield(Zipped[T1, T2]{
+					V1: x, OK1: true,
+					V2: slice[i], OK2: true,
+				}) {
+					return
+				}
+			} else {
+				if !yield(Zipped[T1, T2]{
+					V1: x, OK1: true,
+					OK2: false,
+				}) {
+					return
+				}
+			}
+			i++
+		}
+
+		for i < mi {
+			if !yield(Zipped[T1, T2]{
+				OK1: false,
+				V2:  slice[i], OK2: true,
+			}) {
 				return
 			}
+			i++
 		}
 	}
 }
-*/
 
 // Merge returns a sequence that yields values from the ordered
 // sequences seq1 and seq2 one at a time to produce a new ordered
