@@ -193,6 +193,32 @@ func Glue[T1, T2 any](seq iter.Seq[T1], slice []T2) iter.Seq[Zipped[T1, T2]] {
 	}
 }
 
+// LeftJoin function Left Joins sequence with a slice - does not use goroutines for that.
+func LeftJoin[T1, T2 any](seq iter.Seq[T1], slice []T2) iter.Seq[Zipped[T1, T2]] {
+	return func(yield func(Zipped[T1, T2]) bool) {
+		i := 0
+		mi := len(slice)
+		for x := range seq {
+			if i < mi {
+				if !yield(Zipped[T1, T2]{
+					V1: x, OK1: true,
+					V2: slice[i], OK2: true,
+				}) {
+					return
+				}
+			} else {
+				if !yield(Zipped[T1, T2]{
+					V1: x, OK1: true,
+					OK2: false,
+				}) {
+					return
+				}
+			}
+			i++
+		}
+	}
+}
+
 // Merge returns a sequence that yields values from the ordered
 // sequences seq1 and seq2 one at a time to produce a new ordered
 // sequence made up of all of the elements of both seq1 and seq2.
