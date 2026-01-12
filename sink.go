@@ -28,6 +28,21 @@ func Find[T any](seq iter.Seq[T], f func(T) bool) (r T, ok bool) {
 	return r, ok
 }
 
+// Find returns the first value of seq for which f(value) returns
+// true.
+func Find2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) (r1 T1, r2 T2, ok bool) {
+	seq(func(v1 T1, v2 T2) bool {
+		if !f(v1, v2) {
+			return true
+		}
+		r1 = v1
+		r2 = v2
+		ok = true
+		return false
+	})
+	return r1, r2, ok
+}
+
 // Contains returns true if v is an element of seq.
 func Contains[T comparable](seq iter.Seq[T], v T) bool {
 	_, ok := Find(seq, func(e T) bool { return v == e })
@@ -43,6 +58,17 @@ func Any[T any](seq iter.Seq[T], f func(T) bool) bool {
 // All returns true if f(element) is true for every element of seq.
 func All[T any](seq iter.Seq[T], f func(T) bool) bool {
 	return !Any(seq, f)
+}
+
+// Any returns true if f(element) is true for any elements of seq.
+func Any2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) bool {
+	_, _, ok := Find2(seq, f)
+	return ok
+}
+
+// All returns true if f(element) is true for every element of seq.
+func All2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) bool {
+	return !Any2(seq, f)
 }
 
 // All returns true if f(element) is true for every element of seq.

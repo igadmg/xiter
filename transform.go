@@ -26,6 +26,22 @@ func Map2[T1, T2, T3 any](seq iter.Seq[T1], f func(T1) (T2, T3)) iter.Seq2[T2, T
 	}
 }
 
+func Seq2A[T1, T2 any](seq iter.Seq2[T1, T2]) iter.Seq[T1] {
+	return func(yield func(T1) bool) {
+		seq(func(a T1, b T2) bool {
+			return yield(a)
+		})
+	}
+}
+
+func Seq2B[T1, T2 any](seq iter.Seq2[T1, T2]) iter.Seq[T2] {
+	return func(yield func(T2) bool) {
+		seq(func(a T1, b T2) bool {
+			return yield(b)
+		})
+	}
+}
+
 // Filter returns a Seq that yields only the values of seq for which
 // f(value) returns true.
 func Filter[T any](seq iter.Seq[T], f func(T) bool) iter.Seq[T] {
