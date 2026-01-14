@@ -57,7 +57,7 @@ func Any[T any](seq iter.Seq[T], f func(T) bool) bool {
 
 // All returns true if f(element) is true for every element of seq.
 func All[T any](seq iter.Seq[T], f func(T) bool) bool {
-	return !Any(seq, f)
+	return !Any(seq, func(v T) bool { return !f(v) })
 }
 
 // Any returns true if f(element) is true for any elements of seq.
@@ -68,7 +68,7 @@ func Any2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) bool {
 
 // All returns true if f(element) is true for every element of seq.
 func All2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) bool {
-	return !Any2(seq, f)
+	return !Any2(seq, func(v1 T1, v2 T2) bool { return !f(v1, v2) })
 }
 
 // All returns true if f(element) is true for every element of seq.

@@ -67,9 +67,11 @@ func TestAny(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	r := All(Of(2, 4, 6, 7), func(v int) bool { return v%2 == 0 })
-	if r {
-		t.Fatal(r)
+	if !All(Of(2, 4), func(v int) bool { return v%2 == 0 }) {
+		t.Error()
+	}
+	if All(Of(2, 4, 6, 7), func(v int) bool { return v%2 == 0 }) {
+		t.Error()
 	}
 }
 
