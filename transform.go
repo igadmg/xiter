@@ -55,6 +55,19 @@ func Filter[T any](seq iter.Seq[T], f func(T) bool) iter.Seq[T] {
 	}
 }
 
+// Filter returns a Seq that yields only the values of seq for which
+// f(value) returns true.
+func Filter2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) iter.Seq2[T1, T2] {
+	return func(yield func(T1, T2) bool) {
+		seq(func(v1 T1, v2 T2) bool {
+			if !f(v1, v2) {
+				return true
+			}
+			return yield(v1, v2)
+		})
+	}
+}
+
 // Skip returns a Seq that skips over the first n elements of seq and
 // then yields the rest normally.
 func Skip[T any](seq iter.Seq[T], n int) iter.Seq[T] {
