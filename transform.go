@@ -87,7 +87,7 @@ func Skip[T any](seq iter.Seq[T], n int) iter.Seq[T] {
 // is nil or f returns true, the other value is yielded by the
 // returned Seq.
 //
-// TODO: This is significantly less useful than it could be. For
+// TODO(iga): This is significantly less useful than it could be. For
 // example, there's no way to tell it to skip the yield but continue
 // iteration anyways.
 func Handle[T any](seq iter.Seq2[T, error], f func(error) bool) iter.Seq[T] {
