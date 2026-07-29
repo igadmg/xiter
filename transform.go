@@ -620,3 +620,19 @@ func Cast2[T any, N any, E any](x iter.Seq2[N, E]) iter.Seq2[N, T] {
 		}
 	}
 }
+
+// casts sequence of one type to the sequence of the other type
+// works only on sequences of interfaces.
+func CastKV[K comparable, V any, N any, E any](x iter.Seq2[N, E]) iter.Seq2[K, V] {
+	return func(yield func(K, V) bool) {
+		for n, i := range x {
+			if nk, ok := (any)(n).(K); ok {
+				if iv, ok := (any)(i).(V); ok {
+					if !yield(nk, iv) {
+						return
+					}
+				}
+			}
+		}
+	}
+}
