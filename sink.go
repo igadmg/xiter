@@ -71,7 +71,7 @@ func All2[T1, T2 any](seq iter.Seq2[T1, T2], f func(T1, T2) bool) bool {
 	return !Any2(seq, func(v1 T1, v2 T2) bool { return !f(v1, v2) })
 }
 
-// All returns true if f(element) is true for every element of seq.
+// All returns true if seq is empty
 func IsEmpty[T any](seq iter.Seq[T]) bool {
 	for range seq {
 		return false
