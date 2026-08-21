@@ -1,3 +1,3 @@
 module deedles.dev/xiter
 
-go 1.26
+go 1.27
